@@ -1,0 +1,92 @@
+
+    {
+        "name": "Old-Fashioned Oatmeal Cookies",
+        "ingredients": [
+            {
+                "quantity": "1 cup",
+                "name": "raisins",
+                "type": "Produce"
+            },
+            {
+                "quantity": "1",
+                "name": "cup water",
+                "type": "Drinks"
+            },
+            {
+                "quantity": "3/4 cup",
+                "name": "shortening",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1 1/2 cups",
+                "name": "sugar",
+                "type": "Baking"
+            },
+            {
+                "quantity": "2 1/2 cups",
+                "name": "flour",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1 tsp.",
+                "name": "soda",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1 tsp.",
+                "name": "salt",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1 tsp.",
+                "name": "cinnamon",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1/2 tsp.",
+                "name": "baking powder",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1/2 tsp.",
+                "name": "cloves",
+                "type": "Baking"
+            },
+            {
+                "quantity": "2 cups",
+                "name": "oats",
+                "type": "Baking"
+            },
+            {
+                "quantity": "1/2 cup",
+                "name": "chopped nuts",
+                "type": "Baking"
+            }
+        ],
+        "steps": [
+            "Simmer raisins and water over medium heat until raisins are plump, about 15 minutes.",
+            "Drain raisins, reserving the liquid.",
+            "Add enough water to reserved liquid to measure 1/2 cup.",
+            "Heat oven to 400°.",
+            "Mix thoroughly shortening, sugar, eggs and vanilla.",
+            "Stir in reserved liquid.",
+            "Blend in remaining ingredients.",
+            "Drop dough by rounded teaspoonfuls about 2 inches apart onto ungreased baking sheet.",
+            "Bake 8 to 10 minutes or until light brown.",
+            "About 6 1/2 dozen cookies."
+        ],
+        "timers": [
+            15,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            8,
+            0
+        ],
+        "imageURL": "http://s3.amazonaws.com/gmi-digital-library/65caecf7-a8f7-4a09-8513-2659cf92871e.jpg",
+        "originalURL": "#"
+    }
