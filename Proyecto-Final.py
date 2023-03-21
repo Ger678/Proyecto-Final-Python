@@ -2,11 +2,14 @@ import os
 import json
 from PIL import Image, ImageTk
 import tkinter as tk
+# import urllib.request
 
 class RecipeBook:
     def __init__(self, master):
         self.master = master
         master.title("Recetario")
+        self.botonera()
+        
 
         # Configurar los margenes
         self.master.configure(padx=10, pady=10)
@@ -15,6 +18,13 @@ class RecipeBook:
         self.frame_main = tk.Frame(self.master)
         self.frame_main.pack(expand=True, fill="both")
 
+        # Crear la caja para agregar una receta
+        self.btn_receta = tk.Button(self.frame_main, text="Receta del dia ★", width=4, height=1, justify="left")
+        self.btn_receta.pack()
+
+        self.search = tk.Entry(self.frame_main)
+        self.search.pack()
+        
         # Crear la caja de listado de recetas
         self.frame_list = tk.LabelFrame(self.frame_main, text="Recetas")
         self.frame_list.pack(side="left", padx=10, pady=10, expand=True, fill="both")
@@ -39,10 +49,6 @@ class RecipeBook:
                 self.list_recipes.insert(tk.END, recipe['name'])
 
 
-        # Añadir un label para la caja de detalle de recetas
-        self.label_detail = tk.Label(self.frame_detail, text="Selecciona una receta")
-        self.label_detail.pack(padx=10, pady=10)
-
         # Asociar la función de controlador de eventos para la selección de una receta
         self.list_recipes.bind('<<ListboxSelect>>', self.show_recipe_detail)
 
@@ -53,6 +59,10 @@ class RecipeBook:
         self.image_label = tk.Label(self.frame_detail, bg="green")
 
     def show_recipe_detail(self, event):
+
+        # Añadir un label para la caja de detalle de recetas
+        self.label_detail = tk.Label(self.frame_detail, text="Selecciona una receta")
+        self.label_detail.pack(padx=10, pady=10)
 
         # Limpiar el widget de texto
         self.text_recipe.delete('1.0', tk.END)
@@ -73,19 +83,32 @@ class RecipeBook:
         self.text_recipe.insert(tk.END, "\nInstrucciones:\n")
         for step in recipe['steps']:
             self.text_recipe.insert(tk.END, f"{step}\n")
-        
-        self.image_label.config(image='')
-        
-        image_url = recipe['imageURL']
-        if image_url:
-            image = Image.open(image_url)
-            photo = ImageTk.PhotoImage(image)
-            self.image_label.config(image=photo)
-
 
         self.text_recipe.pack(expand=True, fill="both",padx=10, pady=10)
+    
+    def botonera(self):
+
+
+        ##Botones--------------------------------------------------------------
+        self.frame_btns = tk.Menubutton(self.master)
+        self.frame_btns.pack(side="top")
+
+        # Crear la caja para agregar una receta
+        self.btn_receta = tk.Button(self.frame_btns, text="+", width=4, height=1, justify="left")
+        self.btn_receta.pack(side="left")
+
+        # Crear la caja para editar la receta
+        self.btn_receta = tk.Button(self.frame_btns, text="✏", width=4, height=1)
+        self.btn_receta.pack(side="left")
+
+        # Crear la caja para borrar una receta
+        self.btn_receta = tk.Button(self.frame_btns, text="x", width=4, height=1)
+        self.btn_receta.pack(side="right")
+
+        ##Botones--------------------------------------------------------------
 
 
 root = tk.Tk()
 app = RecipeBook(root)
+root.geometry("900x300")
 root.mainloop()
