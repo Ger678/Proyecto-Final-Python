@@ -2,8 +2,6 @@ import os
 import json
 from PIL import Image, ImageTk
 import tkinter as tk
-# import urllib.request
-
 
 class Recipe:
     def __init__(self, name, ingredients, steps, timers, imageURL):
@@ -16,7 +14,7 @@ class Recipe:
     def a_json(self):
         recipe_dict = {
             "name": self.name,
-            "ingredientes": self.ingredients,
+            "ingredients": self.ingredients,
             "steps": self.steps,
             "timers": self.timers,
             "imageURL": self.imageURL
@@ -25,7 +23,7 @@ class Recipe:
 
     def save_to_file(self, file_name):
         with open(file_name, 'w') as f:
-            f.write(self.to_json())
+            f.write(self.a_json())
 
 
 class RecipeBook:
@@ -154,7 +152,9 @@ class RecipeForm(tk.Toplevel):
         self.name_entry.grid(row=0, column=1)
 
         tk.Label(self, text="Ingredientes:").grid(row=1, column=0)
-        self.ingredients_text = tk.Text(self, height=4, width=30)
+        self.ingredients_text = tk.Listbox(self)
+        self.ingredients_name = tk.Entry(self, height=4, width=30)
+        self.ingredients_quantity = tk.Entry(self)
         self.ingredients_text.grid(row=1, column=1)
 
         tk.Label(self, text="Pasos:").grid(row=2, column=0)
@@ -176,12 +176,17 @@ class RecipeForm(tk.Toplevel):
     # Funcion para guardar la receta
     def save_recipe(self):
         name = self.name_entry.get()
-        ingredients = json.loads(self.ingredients_text.get("1.0", "end"))
-        steps = json.loads(self.steps_text.get("1.0", "end"))
-        timers = json.loads(self.timers_text.get("1.0", "end"))
+        ingredients = self.ingredients_text.get("1.0", "end")
+        steps = self.steps_text.get("1.0", "end")
+        timers = self.timers_text.get("1.0", "end")
         imageURL = self.imageURL_entry.get()
+        #ingredients = json.loads(self.ingredients_text.get('1.0', 'end'))
+        # steps = json.loads(self.steps_text.get("1.0", "end"))
+        # timers = json.loads(self.timers_text.get("1.0", "end"))
+        # imageURL = self.imageURL_entry.get()
 
         recipe = Recipe(name, ingredients, steps, timers, imageURL)
+        print(recipe)
         recipe.save_to_file(name.lower().replace(" ", "_") + ".json")
         self.destroy()
 
