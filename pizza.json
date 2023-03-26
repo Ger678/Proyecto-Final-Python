@@ -1,7 +1,0 @@
-{
-    "name": "Pizza",
-    "ingredientes": "Tomates\nQueso\nPrepizza\t\n",
-    "steps": "Hacer la salsa\nPoner la salsa\nPoner queso\nHornear\t\n",
-    "timers": "20\n15\n",
-    "imageURL": "test"
-}
