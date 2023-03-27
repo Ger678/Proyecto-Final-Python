@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import tkinter as tk
 
 class Recipe:
+    
     def __init__(self, name, ingredients, steps, timers, imageURL):
         self.name = name
         self.ingredients = ingredients
@@ -25,36 +26,33 @@ class Recipe:
         with open(file_name, 'w') as f:
             f.write(self.a_json())
 
-
 class RecipeBook:
 
     def __init__(self, master):
         self.master = master
         master.title("Recetario")
-        # self.botonera()
 
         # Configurar los margenes
         self.master.configure(padx=10, pady=10)
+
+        self.botonera()
 
         # Crear el frame principal
         self.frame_main = tk.Frame(self.master)
         self.frame_main.grid()
 
-        #self.btn_accions()
-        #self.botonera()
-
-
         # Crear la caja de listado de recetas
         self.frame_list = tk.LabelFrame(self.frame_main, text="Recetas")
-        self.frame_list.grid(padx=10,column=0,)
+        self.frame_list.grid(padx=10,row=1,column=0, sticky='N', columnspan=1)
 
         # Crear la caja de detalle de recetas
         self.frame_detail = tk.LabelFrame(self.frame_main,text="Detalle de la receta")
-        self.frame_detail.grid(padx=10,row=0, column=1)
+        self.frame_detail.grid(row=1, column=1)
 
         # Crear la lista de recetas
         self.list_recipes = tk.Listbox(self.frame_list)
-        self.list_recipes.grid(row=0, column=0)
+        self.list_recipes.grid(row=2, column=0,columnspan=2, ipadx='50px', sticky='W')
+        self.btn_accions()
 
 
         ###############################
@@ -89,12 +87,45 @@ class RecipeBook:
         # Imagen
         self.image_label = tk.Label(self.frame_detail, bg="green")
 
+    def btn_accions(self):
+        
+        # Accions
+        self.btn_receta = tk.Button(self.frame_list, text="Receta del dia ★")
+        self.btn_receta.grid(row=0, column=0, sticky='W')
+
+        self.label_search = tk.Label(self.frame_list, text="Search")
+        self.label_search.grid(row=1, column=0,sticky='N'+'W') # type: ignore
+        self.search = tk.Entry(self.frame_list).grid(row=1, column=1,sticky='N'+'W')
+
+    def botonera(self):
+
+        # Botones--------------------------------------------------------------
+        self.frame_btns = tk.Menubutton(self.master)
+        self.frame_btns.grid(row=0, column=0, sticky='W', padx=10)
+
+        # Crear la caja para agregar una receta
+        self.btn_receta = tk.Button(
+        self.frame_btns, text="Crear Receta", command=lambda: RecipeForm(root))
+        self.btn_receta.grid(row=0, column=0,padx=5)
+
+        # Crear la caja para editar la receta
+        self.btn_receta = tk.Button(
+        self.frame_btns, text="Editar Receta")
+        self.btn_receta.grid(row=0, column=1, padx=5)
+
+        # Crear la caja para borrar una receta
+        self.btn_receta = tk.Button(
+        self.frame_btns, text="Eliminar Receta")
+        self.btn_receta.grid(row=0, column=2, padx=5)
+
+        # Botones--------------------------------------------------------------
+
     def show_recipe_detail(self, event):
 
         # Añadir un label para la caja de detalle de recetas
         self.label_detail = tk.Label(
         self.frame_detail, text="Selecciona una receta")
-        self.label_detail.grid(row=0)
+        self.label_detail.grid(row=1)
 
         # Limpiar el widget de texto
         self.text_recipe.delete('1.0', tk.END)
@@ -120,87 +151,80 @@ class RecipeBook:
 
         self.text_recipe.grid(padx=10, pady=10)
 
-    def btn_accions(self):
-        
-        # Accions
-        self.btn_receta = tk.Button(self.frame_main, text="Receta del dia ★")
-        self.btn_receta.grid(row=0, column=1)
-
-        self.label_search = tk.Label(self.frame_main, text="Search")
-        self.label_search.grid(row=1, column=1) # type: ignore
-        self.search = tk.Entry(self.frame_main).grid(row=1, column=2)
-
-    def botonera(self):
-
-        # Botones--------------------------------------------------------------
-        self.frame_btns = tk.Menubutton(self.master)
-        self.frame_btns.grid()
-
-        # Crear la caja para agregar una receta
-        self.btn_receta = tk.Button(
-            self.frame_btns, text="Crear Nueva Receta", command=lambda: RecipeForm(root))
-        self.btn_receta.grid(row=0, column=0)
-
-        # Crear la caja para editar la receta
-        self.btn_receta = tk.Button(
-            self.frame_btns, text="✏", width=4, height=1)
-        self.btn_receta.grid(row=1, column=0)
-
-        # Crear la caja para borrar una receta
-        self.btn_receta = tk.Button(
-            self.frame_btns, text="x", width=4, height=1)
-        self.btn_receta.grid(row=2, column=0)
-
-        # Botones--------------------------------------------------------------
-
-
 class RecipeForm(tk.Toplevel):
+
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Crear Nueva Receta")
+        self.ingredientes = []
+        self.steps = []
 
-        # Crear widgets para el formulario
-        tk.Label(self, text="Nombre:").grid(row=0, column=0)
+        # Crear widgets para el nombre de la receta
+        tk.Label(self, text="Nombre:").grid(row=0, column=0, sticky='W', pady=10)
         self.name_entry = tk.Entry(self)
-        self.name_entry.grid(row=0, column=1)
+        self.name_entry.grid(row=0, column=1,ipadx=40)
 
         #########################################################
         #ingredientes
-        # 1. tuve problemas para entender como hacer para cargar cada ingredientes.
+        # START
 
+        self.ingredient_frame = tk.LabelFrame(self, text="Ingredientes")
+        self.ingredient_frame.grid(row=1, column=0)
+        self.ingredients_text = tk.Listbox(self.ingredient_frame)
+        self.ingredients_text.grid(row=1, column=0)
 
-        tk.Label(self, text="Ingredientes:").grid(row=1, column=0)
-        self.ingredients_text = tk.Listbox(self)
-        self.ingredients_text.grid(row=1, column=1)
+        # Menu para nombre, cantidad y boton
+        self.menu_ingredientes = tk.Frame(self)
+        self.menu_ingredientes.grid(row=1,column=1, sticky='W')
 
-        
+        # Nombre y cantidad
+        tk.Label(self.menu_ingredientes, text="Nombre del ingrediente:").grid(row=2, column=1)
+        self.ingredient_name_entry = tk.Entry(self.menu_ingredientes)
+        self.ingredient_name_entry.grid(row=3, column=1)
 
-        # Agregar etiquetas y entradas para nombres y cantidades de ingredientes
-        tk.Label(self, text="Nombre del ingrediente:").grid(row=2, column=0)
-        self.ingredient_name_entry = tk.Entry(self)
-        self.ingredient_name_entry.grid(row=2, column=1)
+        tk.Label(self.menu_ingredientes, text="Cantidad del ingrediente:").grid(row=4, column=1)
+        self.ingredient_quantity_entry = tk.Entry(self.menu_ingredientes)
+        self.ingredient_quantity_entry.grid(row=5, column=1)
 
-        tk.Label(self, text="Cantidad del ingrediente:").grid(row=3, column=0)
-        self.ingredient_quantity_entry = tk.Entry(self)
-        self.ingredient_quantity_entry.grid(row=3, column=1)
+        tk.Button(self.menu_ingredientes, text="Agregar Ingrediente", command=self.add_ingredient, padx=10, pady=10).grid(row=6, column=1)
 
-        tk.Button(self, text="Agregar Ingrediente", command=self.add_ingredient, padx=10, pady=10).grid(row=4, column=1)
+        # END
+        ##########################################################
 
-        tk.Label(self, text="Pasos:").grid(row=5, column=0)
-        self.steps_text = tk.Text(self, height=4, width=30)
-        self.steps_text.grid(row=5, column=1)
+        ####################################
+        # Pasos
 
-        tk.Label(self, text="Temporizadores:").grid(row=6, column=0)
-        self.timers_text = tk.Text(self, height=4, width=30)
-        self.timers_text.grid(row=6, column=1)
+        # Marco para pasos
+        self.steps_frame = tk.LabelFrame(self, text="Pasos")
+        self.steps_frame.grid(row=2, column=0, pady=10)
+        self.steps_text = tk.Listbox(self.steps_frame)
+        self.steps_text.grid(row=2, column=0)
 
-        tk.Label(self, text="URL de Imagen:").grid(row=7, column=0)
+        # Menu para paso y agregar paso
+        self.menu_steps = tk.Frame(self)
+        self.menu_steps.grid(row=2,column=1, sticky='W')
+
+        tk.Label(self.menu_steps, text="Pasos:").grid(row=0, column=0, sticky='W')
+        self.steps_entry = tk.Entry(self.menu_steps)
+        self.steps_entry.grid(row=1, column=0)
+
+        tk.Button(self.menu_steps, text="Agregar paso", padx=10, pady=10, command=self.add_step).grid(row=2, column=0)
+
+        ####################################
+
+        ####################################
+
+        tk.Label(self, text="Temporizadores:").grid(row=3, column=0, sticky='W')
+        self.timers_text = tk.Entry(self)
+        self.timers_text.grid(row=3, column=1, pady=5, ipadx=40, padx=10)
+
+        tk.Label(self, text="URL de Imagen:").grid(row=4, column=0, sticky='W')
         self.imageURL_entry = tk.Entry(self)
-        self.imageURL_entry.grid(row=7, column=1)
+        self.imageURL_entry.grid(row=4, column=1, pady=5, ipadx=40, padx=10)
 
         # Crear boton para guardar la receta
         tk.Button(self, text="Guardar", command=self.save_recipe).grid(
-            row=8, column=1)
+            row=5, column=1)
         
     def add_ingredient(self):
         # Recuperar el nombre y la cantidad del ingrediente
@@ -208,32 +232,29 @@ class RecipeForm(tk.Toplevel):
         ingredient_quantity = self.ingredient_quantity_entry.get()
 
         # Agregar el nombre y la cantidad a la lista de ingredientes
-        self.ingredients_text.insert(tk.END, f"{ingredient_name}: {ingredient_quantity}")
+
+        ing = {'name':ingredient_name, 'quantity':ingredient_quantity}
+        self.ingredients_text.insert(tk.END, f"{ingredient_name}:{ingredient_quantity}")
+        self.ingredientes.append(ing)
 
         # Limpiar las entradas de texto para que el usuario pueda agregar otro ingrediente
         self.ingredient_name_entry.delete(0, tk.END)
         self.ingredient_quantity_entry.delete(0, tk.END)
 
+    def add_step(self):
+        step = self.steps_entry.get()
+        self.steps_text.insert(tk.END, step)
+        self.steps.append(step)
+        self.steps_entry.delete(0, tk.END)
+    
     # Funcion para guardar la receta
     def save_recipe(self):
 
-        ingredients = []
-
         name = self.name_entry.get()
-
-        ingredient_name = self.ingredient_name_entry.get()
-        ingredient_quantity = self.ingredient_quantity_entry.get()
-        ingredients = f"{ingredient_name}:{ingredient_quantity}"
-
-        print(ingredients)
-        
-        steps = self.steps_text.get("1.0", "end")
-        timers = self.timers_text.get("1.0", "end")
+        ingredients = self.ingredientes
+        steps = self.steps
+        timers = self.timers_text.get()
         imageURL = self.imageURL_entry.get()
-        #ingredients = json.loads(self.ingredients_text.get('1.0', 'end'))
-        # steps = json.loads(self.steps_text.get("1.0", "end"))
-        # timers = json.loads(self.timers_text.get("1.0", "end"))
-        # imageURL = self.imageURL_entry.get()
 
         recipe = Recipe(name, ingredients, steps, timers, imageURL)
         print(name, ingredients, steps, timers, imageURL)
@@ -243,5 +264,4 @@ class RecipeForm(tk.Toplevel):
 
 root = tk.Tk()
 app = RecipeBook(root)
-root.geometry("900x300")
 root.mainloop()

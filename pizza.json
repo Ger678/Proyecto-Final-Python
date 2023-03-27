@@ -1,0 +1,20 @@
+{
+    "name": "Pizza",
+    "ingredients": [
+        {
+            "name": "tomate",
+            "quantity": "1"
+        },
+        {
+            "name": "queso",
+            "quantity": "2"
+        }
+    ],
+    "steps": [
+        "Preparar la salsa",
+        "Poner el queso",
+        "hornear"
+    ],
+    "timers": "10, 29 , 2123",
+    "imageURL": "test"
+}
