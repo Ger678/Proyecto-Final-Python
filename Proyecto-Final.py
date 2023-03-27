@@ -2,6 +2,8 @@ import os
 import json
 from PIL import Image, ImageTk
 import tkinter as tk
+from tkinter import messagebox
+import random
 
 class Recipe:
     
@@ -31,6 +33,8 @@ class RecipeBook:
     def __init__(self, master):
         self.master = master
         master.title("Recetario")
+        self.recipe = []
+        self.receta_del_dia = {}
 
         # Configurar los margenes
         self.master.configure(padx=10, pady=10)
@@ -60,11 +64,6 @@ class RecipeBook:
 
         # Obtener la lista de archivos de recetas
         recipe_files = [f for f in os.listdir(
-            #
-            #
-            #Cambios necesarios de ruta
-            #
-            #
             path="../Proyecto-Final-Python") if f.endswith(".json")]
 
         # Cargar y agregar cada receta a la lista
@@ -90,12 +89,22 @@ class RecipeBook:
     def btn_accions(self):
         
         # Accions
-        self.btn_receta = tk.Button(self.frame_list, text="Receta del dia ★")
-        self.btn_receta.grid(row=0, column=0, sticky='W')
+        self.btn_receta = tk.Button(self.frame_list, text="Receta del dia ★", command=self.day_recipe)
+        self.btn_receta.bind('<<random_recipe>>', self.show_recipe_detail)
+        self.btn_receta.grid(row=0, column=0, sticky='W', padx=10, pady=10,columnspan=2, ipadx=70)
 
-        self.label_search = tk.Label(self.frame_list, text="Search")
-        self.label_search.grid(row=1, column=0,sticky='N'+'W') # type: ignore
-        self.search = tk.Entry(self.frame_list).grid(row=1, column=1,sticky='N'+'W')
+        # Crea un Entry y un botón para realizar la búsqueda
+        self.search_entry = tk.Entry(self.frame_list)
+        self.search_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        self.search_button = tk.Button(self.frame_list, text="Buscar", command=self.search)
+        self.search_button.grid(row=1, column=0,sticky='N'+'W', padx=10, pady=10)
+
+    def day_recipe(self):
+        random_recipe = random.choice(self.recipes)['name']
+        self.btn_receta.destroy()
+        tk.Label(self.frame_list, text=random_recipe).grid(row=0, column=0, sticky='W', padx=10, pady=10,columnspan=2, ipadx=70)
+        print(random_recipe['name'])
 
     def botonera(self):
 
@@ -115,7 +124,7 @@ class RecipeBook:
 
         # Crear la caja para borrar una receta
         self.btn_receta = tk.Button(
-        self.frame_btns, text="Eliminar Receta")
+        self.frame_btns, text="Eliminar Receta", command=self.delete)
         self.btn_receta.grid(row=0, column=2, padx=5)
 
         # Botones--------------------------------------------------------------
@@ -131,25 +140,62 @@ class RecipeBook:
         self.text_recipe.delete(1.0, tk.END)
 
         # Obtener el índice de la receta seleccionada
-        index = self.list_recipes.curselection()[0]
-        self.recipe = self.list_recipes.selection_get()                                                                                   ##### PRINT #####
-
+        index = self.list_recipes.curselection()
+        self.recipe = self.list_recipes.selection_get()
+        index = index[0]
         # Obtener la receta seleccionada
-        recipe = self.recipes[index]
+        self.recipe = self.recipes[index]
 
         # Actualizar la etiqueta de detalle de recetas con el nombre de la receta
-        self.label_detail.config(text=recipe['name'])
+        self.label_detail.config(text=self.recipe['name'])
 
         # Agregar los ingredientes y las instrucciones al widget de texto
         self.text_recipe.insert(tk.END, "Ingredientes:\n")
-        for ingredient in recipe['ingredients']:
+        for ingredient in self.recipe['ingredients']:
             self.text_recipe.insert(
                 tk.END, f"- {ingredient['name'].upper()}, {ingredient['quantity']}\n")
         self.text_recipe.insert(tk.END, "\nInstrucciones:\n")
-        for step in recipe['steps']:
+        for step in self.recipe['steps']:
             self.text_recipe.insert(tk.END, f"{step}\n")
 
         self.text_recipe.grid(padx=10, pady=10)
+
+    def search(self):
+        # Obtén el texto del Entry
+        search_text = self.search_entry.get()
+
+        # Recorre todos los elementos de la Listbox para buscar coincidencias
+        found = False
+        for i in range(self.list_recipes.size()):
+            if search_text.lower() in self.list_recipes.get(i).lower():
+                # Se encontró una coincidencia
+                self.list_recipes.selection_clear(0, tk.END)
+                self.list_recipes.selection_set(i)
+                self.list_recipes.see(i)
+                found = True
+                break
+
+        # Si no se encontraron coincidencias, muestra un mensaje al usuario
+        if not found:
+            messagebox.showinfo("Búsqueda", "No se encontraron resultados")
+
+    def delete(self):
+        # Obtener la receta seleccionada en la listbox
+        seleccion = self.list_recipes.curselection()
+        if len(seleccion) == 0:
+            return
+
+        # Obtener la información de la receta
+        indice = self.list_recipes.index(seleccion[0])
+        receta = self.recipes[indice]
+        nombre = receta['name']
+
+        ruta_archivo = f"./{nombre}.json"
+        print(ruta_archivo)
+        os.remove(ruta_archivo)
+
+        del self.recipe[indice]
+        self.list_recipes.delete(seleccion)
 
 class RecipeForm(tk.Toplevel):
 
@@ -260,7 +306,7 @@ class RecipeForm(tk.Toplevel):
     def add_timer(self):
         time = self.timers_entry.get()
         self.timer_text.insert(tk.END, time)
-        self.times.append(int(time))
+        self.times.append(time)
         self.timers_entry.delete(0, tk.END)
         print(sum(self.times))                                                                       ###### suma de tiempo ######
 
@@ -290,8 +336,9 @@ class EditMode(tk.Toplevel):
     def __init__(self, parent, recipe):
         super().__init__(parent)
         self.title("Editar Receta")
+        name = recipe['name']
 
-        with open(f'../Proyecto-Final-Python/{recipe}' + '.json', 'r') as re:
+        with open(f'../Proyecto-Final-Python/{name}' + '.json', 'r') as re:
             receta = json.load(re)
             nombre = receta['name']
             url = receta['imageURL']
@@ -318,34 +365,33 @@ class EditMode(tk.Toplevel):
         #########################################################
         #ingredientes
         # START
+        self.ingredient_frame_edit = tk.LabelFrame(self, text="Ingredientes")
+        self.ingredient_frame_edit.grid(row=2, column=0, padx=10)
+        self.ingredients_text = tk.Listbox(self.ingredient_frame_edit, listvariable=ingredients)
 
-        self.ingredient_frame = tk.LabelFrame(self, text="Ingredientes")
-        self.ingredient_frame.grid(row=2, column=0, padx=10)
-        self.ingredients_text = tk.Listbox(self.ingredient_frame, listvariable=ingredients)
+        self.ingredients_list = []
+
+        #self.ingredients_text.bind('<<ListboxSelect>>', self.edit_ingredient)
+
         for ingredient in ingredients:
-            ingredient_name = ingredient['name']
-            ingredient_quantity = ingredient['quantity']
-            var = ingredient_name +':'+ ingredient_quantity
-            print(var)                                                                                                  ##### Print #######
-            self.ingredients_text.insert(tk.END, var)
+            self.ingredients_list.append(ingredient)  
+            self.ingredients_text.insert(tk.END, ingredient['name'].upper()+':'+ingredient['quantity'])
+
+        inx = self.ingredients_text.get(0)
+        print('inde', inx)
+            #self.edit_ingredient(inx)
+
+            # Crear botón Editar para cada ingrediente
+            #edit_button = tk.Button(self.ingredient_frame, text="Editar", command= lambda index=len(self.ingredients_list)-1: self.edit_ingredient(index))
+            #edit_button.grid(row=len(self.ingredients_list)-1, column=1, padx=5)
+                                                                                                                                  ##### Print #######
         self.ingredients_text.grid(row=2, column=0)
-        index = self.ingredients_text.curselection()[0]
-        print(index)                                                                                                    ##### Print #######
+        index1 = self.ingredients_text.selection_get()
+        print('index', index1)                                                                                                    ##### Print #######
 
         # Menu para nombre, cantidad y boton
         self.menu_ingredientes = tk.Frame(self)
         self.menu_ingredientes.grid(row=2,column=1, sticky='W')
-
-        # Nombre y cantidad
-        tk.Label(self.menu_ingredientes, text="Nombre del ingrediente:").grid(row=2, column=1)
-        self.ingredient_name_entry = tk.Entry(self.menu_ingredientes)
-        self.ingredient_name_entry.grid(row=3, column=1)
-
-        tk.Label(self.menu_ingredientes, text="Cantidad del ingrediente:").grid(row=4, column=1)
-        self.ingredient_quantity_entry = tk.Entry(self.menu_ingredientes)
-        self.ingredient_quantity_entry.grid(row=5, column=1)
-
-        tk.Button(self.menu_ingredientes, text="Agregar Ingrediente", padx=10, pady=10).grid(row=6, column=1, pady=10)
 
         # END
         ##########################################################
@@ -395,6 +441,29 @@ class EditMode(tk.Toplevel):
 
         # Crear boton para guardar la receta
         tk.Button(self, text="Guardar").grid(row=5, column=0,columnspan=2, ipadx=100, pady=10)
+
+    def edit_ingredient(self, index):
+        
+        print(index)
+        # Obtener el ingrediente seleccionado
+        ingredient = self.ingredients_list[index]
+
+        # Crear variables de control para las entradas de texto
+        name_var = tk.StringVar(value=ingredient['name'])
+        quantity_var = tk.StringVar(value=ingredient['quantity'])
+
+        # Crear widgets para el nombre y cantidad del ingrediente
+        tk.Label(self.menu_ingredientes, text="Nombre:").grid(row=0, column=0, sticky='W', pady=10)
+        name_entry = tk.Entry(self.menu_ingredientes, textvariable=name_var)
+        name_entry.grid(row=0, column=1)
+
+        tk.Label(self.menu_ingredientes, text="Cantidad:").grid(row=1, column=0, sticky='W', pady=10)
+        quantity_entry = tk.Entry(self.menu_ingredientes, textvariable=quantity_var)
+        quantity_entry.grid(row=1, column=1)
+
+        # Crear botón para guardar los cambios
+        #save_button = tk.Button(edit_window, text="Guardar", command=lambda: self.save_ingredient(index, name_var.get(), quantity_var.get(), edit_window))
+        #save_button.grid(row=2, column=0, columnspan=2, pady=10)
 
 root = tk.Tk()
 app = RecipeBook(root)
